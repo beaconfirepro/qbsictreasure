@@ -97,7 +97,7 @@ const TreasureGame = () => {
       });
     } else {
       setMessages((prev) => [...prev, msg]);
-      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+      setTimeout(() => bottomRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
     }
   };
 
