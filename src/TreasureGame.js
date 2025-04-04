@@ -39,26 +39,26 @@ const TreasureGame = () => {
   const [expectingAnswer, setExpectingAnswer] = useState(null);
 
   function resetGame() {
-  TREASURE_POS = getRandomPosition();
-  setPlayer(getRandomEdgePosition());
-  setMessage("You are stranded on a desert island. Please indicate what you would like to do next...");
-  setFound(false);
-  setDigPrompt(false);
-  setInventory([]);
-  setDistractions(getRandomDistractions());
-  setReverseControls(false);
-  setStumbledItem(null);
-  setPickupPrompt(false);
-  setExpectingAnswer(null);
-}
+    TREASURE_POS = getRandomPosition();
+    setPlayer(getRandomEdgePosition());
+    setMessage("You are stranded on a desert island. Please indicate what you would like to do next...");
+    setFound(false);
+    setDigPrompt(false);
+    setInventory([]);
+    setDistractions(getRandomDistractions());
+    setReverseControls(false);
+    setStumbledItem(null);
+    setPickupPrompt(false);
+    setExpectingAnswer(null);
+  }
 
   function getRandomEdgePosition() {
     const edge = Math.floor(Math.random() * 4);
     switch (edge) {
-      case 0: return { x: 0, y: Math.floor(Math.random() * GRID_HEIGHT) }; // left
-      case 1: return { x: GRID_WIDTH - 1, y: Math.floor(Math.random() * GRID_HEIGHT) }; // right
-      case 2: return { x: Math.floor(Math.random() * GRID_WIDTH), y: 0 }; // top
-      case 3: return { x: Math.floor(Math.random() * GRID_WIDTH), y: GRID_HEIGHT - 1 }; // bottom
+      case 0: return { x: 0, y: Math.floor(Math.random() * GRID_HEIGHT) };
+      case 1: return { x: GRID_WIDTH - 1, y: Math.floor(Math.random() * GRID_HEIGHT) };
+      case 2: return { x: Math.floor(Math.random() * GRID_WIDTH), y: 0 };
+      case 3: return { x: Math.floor(Math.random() * GRID_WIDTH), y: GRID_HEIGHT - 1 };
     }
   }
 
@@ -151,12 +151,6 @@ const TreasureGame = () => {
         setDigPrompt(false);
         return;
       }
-    } else {
-        setMessage("The sacred protector arrives and grants you access to the treasure! You win!");
-        setFound(true);
-        setDigPrompt(false);
-        return;
-      }
     }
 
     if (stumbledItem && input === "dig") {
@@ -175,9 +169,6 @@ const TreasureGame = () => {
         setTimeout(resetGame, 4000);
         return;
       }
-      setMessage("I am sorry. I do not understand that command");
-      return;
-    }
       setMessage("I am sorry. I do not understand that command");
       return;
     }
