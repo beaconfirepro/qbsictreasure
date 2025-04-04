@@ -24,22 +24,73 @@ const TreasureGame = () => {
   const [inventory, setInventory] = useState([]);
   const [distractions, setDistractions] = useState([...INITIAL_DISTRACTIONS]);
   const [reverseControls, setReverseControls] = useState(false);
+  const [stumbledItem, setStumbledItem] = useState(null);
+  const [pickupPrompt, setPickupPrompt] = useState(false);
 
   const handleCommand = (e) => {
     if (e.key !== "Enter") return;
     const input = e.target.value.trim().toLowerCase();
     e.target.value = "";
 
-    const words = input.split(" ");
-    const verb = words[0];
-    const direction = words[1];
-
-    if (digPrompt && verb === "dig") {
+    // Handle dig
+    if (digPrompt && input === "dig") {
       setMessage("You found the treasure!");
       setFound(true);
       setDigPrompt(false);
       return;
     }
+
+    // Handle distraction discovery
+    if (stumbledItem && input === "dig") {
+      setMessage(`You uncover ${stumbledItem.item}. Would you like to pick it up? (yes/no)`);
+      setPickupPrompt(true);
+      return;
+    }
+
+    // Handle pickup prompt
+    if (pickupPrompt) {
+      if (input === "yes") {
+        if (stumbledItem.item === "a black hole") {
+          setMessage("You found a black hole... You wisely step back.");
+          setStumbledItem(null);
+          setPickupPrompt(false);
+          return;
+        }
+
+        setInventory((prev) => [...prev, stumbledItem.item]);
+
+        switch (stumbledItem.item) {
+          case "a boot":
+            setMessage("You picked up a boot and are transported to Hogwarts.");
+            break;
+          case "a magnifying glass":
+            setMessage("You picked up a magnifying glass. Use it? (yes/no)");
+            break;
+          case "a towel":
+            setMessage("An alien appears: 'Grab this towel and stick out your thumb. The planet is about to be destroyed.'");
+            break;
+          case "a spear":
+            setMessage("You picked up a spear. Keep looking for the treasure.");
+            break;
+          default:
+            setMessage(`You picked up ${stumbledItem.item}.`);
+        }
+
+        setDistractions(distractions.filter(d => d !== stumbledItem));
+        setStumbledItem(null);
+        setPickupPrompt(false);
+        return;
+      } else if (input === "no") {
+        setMessage("You leave it where it is.");
+        setStumbledItem(null);
+        setPickupPrompt(false);
+        return;
+      }
+    }
+
+    const words = input.split(" ");
+    const verb = words[0];
+    const direction = words[1];
 
     if (!validMoveCommands.includes(verb) || !validDirections.includes(direction)) {
       if (input.includes("black hole")) {
@@ -71,6 +122,8 @@ const TreasureGame = () => {
     setPlayer({ x, y });
     setMessage("Keep looking...");
     setDigPrompt(false);
+    setStumbledItem(null);
+    setPickupPrompt(false);
 
     if (x === TREASURE_POS.x && y === TREASURE_POS.y && !found) {
       setMessage("You feel something beneath your feet... Type 'dig'.");
@@ -79,32 +132,8 @@ const TreasureGame = () => {
       const index = distractions.findIndex((d) => d.x === x && d.y === y);
       if (index !== -1) {
         const distraction = distractions[index];
-        const updated = distractions.filter((_, i) => i !== index);
-        setDistractions(updated);
-
-        switch (distraction.item) {
-          case "a boot":
-            setMessage("You picked up a boot and are transported to Hogwarts.");
-            break;
-          case "a magnifying glass":
-            setMessage("You picked up a magnifying glass. Use it? (yes/no)");
-            break;
-          case "a towel":
-            setMessage("An alien appears: 'Grab this towel and stick out your thumb. The planet is about to be destroyed.'");
-            break;
-          case "a spear":
-            setMessage("You picked up a spear. Keep looking for the treasure.");
-            break;
-          case "a black hole":
-            setMessage("You found a black hole... You wisely step back.");
-            return;
-          default:
-            setMessage(`You picked up ${distraction.item}.`);
-        }
-
-        if (distraction.item !== "a black hole") {
-          setInventory((prev) => [...prev, distraction.item]);
-        }
+        setStumbledItem(distraction);
+        setMessage(`You stumbled on something. Type 'dig' to check it out.`);
       }
     }
   };
