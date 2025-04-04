@@ -1,14 +1,30 @@
-// Treasure Remake (Text-Only Version) with DEBUG toggle and narrative logic
+// Treasure Remake with Full Narrative and Sea Creature Logic
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 const GRID_WIDTH = 10;
 const GRID_HEIGHT = 10;
-const getRandomPosition = () => ({ x: Math.floor(Math.random() * GRID_WIDTH), y: Math.floor(Math.random() * GRID_HEIGHT) });
-let TREASURE_POS = getRandomPosition();
-const DEBUG = true;
+const DEATH_MESSAGES = [
+  "You have been devoured by a shark.",
+  "You have been stung and killed by a box jellyfish.",
+  "A crocodile has appeared and pulled you under – you will not survive."
+];
 
-const DISTRACTION_ITEMS = ["a boot", "a magnifying glass", "a towel", "a spear", "a black hole"];
+const getRandomPosition = () => ({
+  x: Math.floor(Math.random() * GRID_WIDTH),
+  y: Math.floor(Math.random() * GRID_HEIGHT),
+});
+
+let TREASURE_POS = getRandomPosition();
+
+const DISTRACTION_ITEMS = [
+  "a boot",
+  "a magnifying glass",
+  "a towel",
+  "a spear",
+  "a black hole"
+];
+
 const getRandomDistractions = () => {
   const positions = new Set();
   const distractions = [];
@@ -27,6 +43,7 @@ const validMoveCommands = ["move", "go", "walk", "step"];
 const validDirections = ["up", "down", "left", "right"];
 
 const TreasureGame = () => {
+  const [debug, setDebug] = useState(true);
   const [player, setPlayer] = useState(getRandomEdgePosition());
   const [message, setMessage] = useState("You are stranded on a desert island. Please indicate what you would like to do next...");
   const [found, setFound] = useState(false);
@@ -37,20 +54,8 @@ const TreasureGame = () => {
   const [stumbledItem, setStumbledItem] = useState(null);
   const [pickupPrompt, setPickupPrompt] = useState(false);
   const [expectingAnswer, setExpectingAnswer] = useState(null);
-
-  function resetGame() {
-    TREASURE_POS = getRandomPosition();
-    setPlayer(getRandomEdgePosition());
-    setMessage("You are stranded on a desert island. Please indicate what you would like to do next...");
-    setFound(false);
-    setDigPrompt(false);
-    setInventory([]);
-    setDistractions(getRandomDistractions());
-    setReverseControls(false);
-    setStumbledItem(null);
-    setPickupPrompt(false);
-    setExpectingAnswer(null);
-  }
+  const [edgeTouched, setEdgeTouched] = useState(null);
+  const [dead, setDead] = useState(false);
 
   function getRandomEdgePosition() {
     const edge = Math.floor(Math.random() * 4);
@@ -62,7 +67,36 @@ const TreasureGame = () => {
     }
   }
 
+  const resetGame = () => {
+    TREASURE_POS = getRandomPosition();
+    setPlayer(getRandomEdgePosition());
+    setMessage("You are stranded on a desert island. Please indicate what you would like to do next...");
+    setFound(false);
+    setDigPrompt(false);
+    setInventory([]);
+    setDistractions(getRandomDistractions());
+    setReverseControls(false);
+    setStumbledItem(null);
+    setPickupPrompt(false);
+    setExpectingAnswer(null);
+    setEdgeTouched(null);
+    setDead(false);
+  };
+
   const handleCommand = (e) => {
+    if (e.key !== "Enter") return;
+    const input = e.target.value.trim().toLowerCase();
+    e.target.value = "";
+
+    if (input === "debugon") {
+      setDebug(true);
+      setMessage("Debug mode ON");
+      return;
+    } else if (input === "debugoff") {
+      setDebug(false);
+      setMessage("Debug mode OFF");
+      return;
+    }
     if (e.key !== "Enter") return;
     const input = e.target.value.trim().toLowerCase();
     e.target.value = "";
@@ -72,33 +106,25 @@ const TreasureGame = () => {
         setMessage("Great - hold on tight and stick out your thumb. We are out of here losers");
       } else {
         setMessage("Sorry mate. See you in a different dimension.\nThe planet has been destroyed with you on it and you have died.");
+        setDead(true);
         setTimeout(resetGame, 4000);
       }
       setExpectingAnswer(null);
       return;
     }
 
-    if (expectingAnswer === "enter_black_hole") {
-      if (input === "yes") {
-        setMessage("You step into the black hole. Reality shifts. Everything feels strange.");
-        setReverseControls(true);
-        setExpectingAnswer(null);
-      } else {
-        setMessage("You step back from the black hole, leaving it untouched.");
-        setExpectingAnswer(null);
-      }
-      return;
-    }
-
     if (expectingAnswer === "hogwarts_choice") {
       if (input === "rock") {
-        setMessage("You have been given the power to bring back the dead but you do not know what you are doing and brought back too many dead. They multiply and overrun planet Earth with their zombie legions. You die.");
+        setMessage("You have been given the power to bring back the dead... and now zombies overrun the earth. You die.");
+        setDead(true);
         setTimeout(resetGame, 4000);
       } else if (input === "stick") {
-        setMessage("You have been given the power of absolute power, but you get so crazy with power that you murder everyone alive and then die sad. You died. Sad.");
+        setMessage("You become power-mad and destroy everything. You die sad.");
+        setDead(true);
         setTimeout(resetGame, 4000);
       } else if (input === "poncho") {
-        setMessage("You have been given the power to hide... True love grows and you have a marriage ceremony together. You commit to spend the rest of your lives together. And you do. But then you die. You are dead");
+        setMessage("You hide when needed and live happily. Love finds you. Then you die. You are dead.");
+        setDead(true);
         setTimeout(resetGame, 8000);
       } else {
         setMessage("The witch doesn't understand your choice. Try: rock, stick, or poncho.");
@@ -113,22 +139,19 @@ const TreasureGame = () => {
           setExpectingAnswer("enter_black_hole");
           return;
         }
-
         if (stumbledItem.item === "a towel") {
-          setMessage("Oh great, you have your towel. The planet is set to be destroyed to make way for an intergalactic highway. If you know the meaning of the universe, you can come with me. What is it?");
+          setMessage("Oh great, you have your towel. The planet is set to be destroyed... What is the meaning of the universe?");
           setExpectingAnswer("meaning_of_life");
           return;
         }
-
         if (stumbledItem.item === "a boot") {
-          setMessage("You are met by a magical witch. She is offering you one of three things: a rock, a stick, or a poncho.");
+          setMessage("You are met by a magical witch. She offers a rock, a stick, or a poncho.");
           setExpectingAnswer("hogwarts_choice");
           return;
         }
-
         setInventory((prev) => [...prev, stumbledItem.item]);
-        setMessage(`You picked up ${stumbledItem.item}.`);
         setDistractions(distractions.filter(d => d !== stumbledItem));
+        setMessage(`You picked up ${stumbledItem.item}.`);
         setStumbledItem(null);
         setPickupPrompt(false);
         return;
@@ -143,14 +166,14 @@ const TreasureGame = () => {
     if (digPrompt && input === "dig") {
       if (inventory.includes("a spear")) {
         setMessage("A sacred protector arrives and attacks you. You are dead.");
+        setDead(true);
         setTimeout(resetGame, 4000);
-        return;
       } else {
         setMessage("A sacred protector arrives and grants you access to the treasure.");
         setFound(true);
         setDigPrompt(false);
-        return;
       }
+      return;
     }
 
     if (stumbledItem && input === "dig") {
@@ -166,6 +189,7 @@ const TreasureGame = () => {
     if (!validMoveCommands.includes(verb) || !validDirections.includes(direction)) {
       if (input.includes("fire") || input === "use magnifying glass") {
         setMessage("You set the island on fire and burn to death. You died.");
+        setDead(true);
         setTimeout(resetGame, 4000);
         return;
       }
@@ -174,6 +198,33 @@ const TreasureGame = () => {
     }
 
     let { x, y } = player;
+
+    if (edgeTouched === direction) {
+      const deathMsg = DEATH_MESSAGES[Math.floor(Math.random() * DEATH_MESSAGES.length)];
+      setMessage(`${deathMsg} Game resetting...`);
+      setDead(true);
+      setTimeout(resetGame, 3000);
+      return;
+    }
+
+    const touchingEdge = reverseControls ? {
+      up: y === GRID_HEIGHT - 1,
+      down: y === 0,
+      left: x === GRID_WIDTH - 1,
+      right: x === 0,
+    } : {
+      up: y === 0,
+      down: y === GRID_HEIGHT - 1,
+      left: x === 0,
+      right: x === GRID_WIDTH - 1,
+    };
+
+    if (touchingEdge[direction]) {
+      setEdgeTouched(direction);
+      setMessage("Your feet touch water...");
+      return;
+    }
+
     const move = reverseControls ? {
       up: () => y < GRID_HEIGHT - 1 && y++,
       down: () => y > 0 && y--,
@@ -192,6 +243,7 @@ const TreasureGame = () => {
     setDigPrompt(false);
     setStumbledItem(null);
     setPickupPrompt(false);
+    setEdgeTouched(null);
 
     if (x === TREASURE_POS.x && y === TREASURE_POS.y && !found) {
       setMessage("You feel something beneath your feet... Type 'dig'.");
@@ -207,7 +259,6 @@ const TreasureGame = () => {
   };
 
   const renderGrid = () => {
-    if (!DEBUG) return "";
     let output = "";
     for (let y = 0; y < GRID_HEIGHT; y++) {
       let row = "";
@@ -236,14 +287,22 @@ const TreasureGame = () => {
 === TREASURE ===
 ${message}
 
-${DEBUG ? renderGrid() + "\nInventory: " + (inventory.join(", ") || "(empty)") : ""}
+${debug ? renderGrid() + "
+Inventory: " + (inventory.join(", ") || "(empty)") : ""}
+=== TREASURE ===
+${message}
+
+${debug ? renderGrid() : ""}
+Inventory: ${inventory.join(", ") || "(empty)"}
 `}</pre>
-      <input
-        type="text"
-        placeholder="Type your command..."
-        onKeyDown={handleCommand}
-        autoFocus
-      />
+      {!dead && (
+        <input
+          type="text"
+          placeholder="Type your command..."
+          onKeyDown={handleCommand}
+          autoFocus
+        />
+      )}
     </div>
   );
 };
