@@ -343,7 +343,9 @@ const TreasureGame = () => {
   };
 
 return (
-  <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gridTemplateRows: 'auto auto auto', gap: '1rem', height: '100vh' }}>
+  <div style= {{ width: '100vh'}}>
+    <div style= {{height: '30vh'}}></div>
+    <div style={{ paddingLeft: '2rem', display: 'grid', gridTemplateColumns: '2fr 1fr', gridTemplateRows: 'auto auto auto', gap: '1rem', height: '100vh' }}>
     {/* LEFT: Message History */}
     <div style={{ gridColumn: '1 / 2', gridRow: '1 / 4', overflowY: 'auto' }}>
       {messages.map((msg, i) => (
@@ -381,6 +383,7 @@ return (
       )}
     </div>
   </div>
+    </div>
 );
 };
 
