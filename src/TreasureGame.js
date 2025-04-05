@@ -347,7 +347,7 @@ return (
     <div style= {{height: '30vh'}}></div>
     <div style={{ paddingLeft: '2rem', display: 'grid', gridTemplateColumns: '2fr 1fr ', gridTemplateRows: 'auto auto auto auto', gap: '1rem', height: '100vh' }}>
     {/* TOP LEFT: Message History */}
-    <div style={{ gridColumn: '1 / 2', gridRow: '1 / 4' , height: '40vh', overflowY:'hidden'}}>
+    <div style={{ gridColumn: '1 / 2', gridRow: '1 / 4' , height: '40vh', overflowY:'visible'}}>
       {messages.map((msg, i) => (
         <div key={i}>
           {msg.split("<<br>>").map((line, j) => (
