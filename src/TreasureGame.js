@@ -343,11 +343,11 @@ const TreasureGame = () => {
   };
 
 return (
-  <div style= {{ width: '100vh'}}>
+  <div style= {{ border: '1px solid #ccc', padding: '0.5rem', width: '100vh', height: '80vh'}}>
     <div style= {{height: '30vh'}}></div>
-    <div style={{ paddingLeft: '2rem', display: 'grid', gridTemplateColumns: '2fr 1fr', gridTemplateRows: 'auto auto auto', gap: '1rem', height: '100vh' }}>
-    {/* LEFT: Message History */}
-    <div style={{ gridColumn: '1 / 2', gridRow: '1 / 4', overflowY: 'auto' }}>
+    <div style={{ paddingLeft: '2rem', display: 'grid', gridTemplateColumns: '2fr 1fr ', gridTemplateRows: 'auto auto auto auto', gap: '1rem', height: '100vh' }}>
+    {/* TOP LEFT: Message History */}
+    <div style={{ gridColumn: '1 / 2', gridRow: '1 / 4' , height: '40vh', overflowY:'hidden'}}>
       {messages.map((msg, i) => (
         <div key={i}>
           {msg.split("<<br>>").map((line, j) => (
@@ -356,7 +356,7 @@ return (
       ))}
     </div>
 
-    {/* TOP RIGHT: Narrator / Game messages */}
+    {/* TOP RIGHT: INPUT */}
     <div style={{ gridColumn: '2 / 3', gridRow: '1 / 2', border: '1px solid #ccc', padding: '0.5rem' }}>
       {debugStatus && <div>{debugStatus}</div>}
         {/* INPUT: Bottom of full layout */}
