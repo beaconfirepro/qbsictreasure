@@ -363,10 +363,10 @@ return (
     {!dead && (
       <input
         type="text"
-        placeholder="Type your command..."
+        placeholder="..."
         onKeyDown={(e) => dead ? resetGame() : handleCommand(e)}
         autoFocus
-        style={{ gridColumn: '1 / 3', gridRow: '4', padding: '0.5rem', marginTop: '1rem', width: '100%' }}
+        style={{ gridColumn: '1 / 3', gridRow: '4', padding: '0.5rem', marginTop: '1rem', width: '80%' }}
       />
     )}
     </div>
